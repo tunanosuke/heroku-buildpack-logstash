@@ -1,0 +1,28 @@
+#!/bin/sh
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+ENV_DIR=$3
+
+if [ -f $BUILD_DIR/.version ]; then
+  VERSION=$(head -n 1 $BUILD_DIR/.version)
+else
+  VERSION="5.6.13"
+fi
+
+LOGSTASH_URL="https://artifacts.elastic.co/downloads/logstash/logstash-$VERSION.tar.gz"
+
+mkdir -p $CACHE_DIR
+
+if [ -f $CACHE_DIR/logstash-$VERSION.tar.gz ]; then
+  echo "Logstash package already detected in cache, skipping download."
+else
+  echo -n "Downloading Logstash into $CACHE_DIR... "
+  curl --silent --location $LOGSTASH_URL -o $CACHE_DIR/logstash-$VERSION.tar.gz
+  echo "done"
+fi
+
+echo -n "Unpacking Logstash... "
+tar -xzf $CACHE_DIR/logstash-$VERSION.tar.gz -C $BUILD_DIR
+mv $BUILD_DIR/logstash-$VERSION $BUILD_DIR/logstash
+echo "done"
